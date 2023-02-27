@@ -11,6 +11,13 @@ contract('Voting', accounts => {
 
     let VotingInstance;
 
+    describe("test state RegisteringVoters", function () {
+        it("should be RegisteringVoters state by default", async () => {
+            VotingInstance = await Voting.new({from:owner});
+            expect(await VotingInstance.workflowStatus.call()).to.be.bignumber.equal(new BN(0));
+        });
+    });
+
     describe("test state ProposalsRegistrationStarted", function () {
 
         beforeEach(async function () {

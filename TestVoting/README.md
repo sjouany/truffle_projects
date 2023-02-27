@@ -28,6 +28,7 @@ In another terminal launch tests execution
 
 Different tests are implemented to check implementation of Voting contract:
 - Tests about different States and transitions:
+    - RegisteringVoters
     - ProposalsRegistrationStarted
     - ProposalsRegistrationEnded
     - VotingSessionStarted
