@@ -313,6 +313,7 @@ contract('Voting', accounts => {
             await VotingInstance.startVotingSession({from: owner});
             await VotingInstance.setVote(2, {from: voter1});
             await VotingInstance.setVote(2, {from: voter2});
+            await VotingInstance.setVote(1, {from: voter3});
             await VotingInstance.endVotingSession({from: owner});
             await VotingInstance.tallyVotes({from: owner});
             expect(await VotingInstance.winningProposalID.call()).to.be.bignumber.equal(new BN(2));
