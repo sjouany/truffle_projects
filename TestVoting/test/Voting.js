@@ -74,7 +74,7 @@ contract('Voting', accounts => {
 
     });
 
-    describe("test state startVotingSession", function () {
+    describe("test state VotingSessionStarted", function () {
 
         beforeEach(async function () {
             VotingInstance = await Voting.new({from:owner});
@@ -104,7 +104,7 @@ contract('Voting', accounts => {
 
     });  
 
-    describe("test state endVotingSession", function () {
+    describe("test state VotingSessionEnded", function () {
 
         beforeEach(async function () {
             VotingInstance = await Voting.new({from:owner});
