@@ -173,6 +173,7 @@ contract Voting is Ownable {
         view
         returns (Proposal memory)
     {
+        require(owner() == msg.sender || voters[msg.sender].isRegistered, "Current status is not voting session ended");   
         require(workflowStatus == WorkflowStatus.VotesTallied, "Current status is not tallied vote");   
         return proposalsArray[winningProposalID];
     }
