@@ -166,7 +166,7 @@ contract Voting is Ownable {
        emit WorkflowStatusChange(WorkflowStatus.VotingSessionEnded, WorkflowStatus.VotesTallied);
     }
 
-    /// @notice Get winning proposal 
+    /// @notice Get winning proposal. Only voter or owner can do it
     /// @return winning proposal details
     function getWinningProposal()
         external
