@@ -39,7 +39,6 @@ contract Voting is Ownable {
     WorkflowStatus public workflowStatus;
     
     /// @notice Proposals array
-    /// @dev public to be able to get a proposal by id
     Proposal[] proposalsArray;
 
     /// @notice Mapping to link an address with a Voter
@@ -69,21 +68,21 @@ contract Voting is Ownable {
         _;
     }
     
-    /// @notice get a Voter by adress
+    /// @notice get a Voter details by adress. Only voter can do it.
     /// @param _addr Address for the voter
     /// @return a Voter
     function getVoter(address _addr) external onlyVoters view returns (Voter memory) {
         return voters[_addr];
     }
     
-    /// @notice get a proposal by id 
+    /// @notice get a proposal by id. Only voter can do it
     /// @param _id Proposal index in the array
     /// @return a proposal
     function getOneProposal(uint _id) external onlyVoters view returns (Proposal memory) {
         return proposalsArray[_id];
     }
 
-    /// @notice Register a new address to the whitelist.
+    /// @notice Register a new address to the whitelist. Only owner can do it
     /// @param _addr Address to add to the whitelist
     function addVoter(address _addr) external onlyOwner {
         require(workflowStatus == WorkflowStatus.RegisteringVoters, 'Voters registration is not open yet');
@@ -94,7 +93,7 @@ contract Voting is Ownable {
     }
  
 
-    /// @notice Register a new proposal.
+    /// @notice Register a new proposal. Only voter can do it.
     /// @param _desc Proposal description
     function addProposal(string calldata _desc) external onlyVoters {
         require(workflowStatus == WorkflowStatus.ProposalsRegistrationStarted, 'Proposals are not allowed yet');
@@ -107,13 +106,13 @@ contract Voting is Ownable {
     }
 
 
-    /// @notice execute a vote
+    /// @notice execute a vote. Only voter can do it
     /// @param _id Proposal id choosen by the voter
     /// @dev winning proposal id is computed after each vote
     function setVote( uint _id) external onlyVoters {
         require(workflowStatus == WorkflowStatus.VotingSessionStarted, 'Voting session havent started yet');
         require(voters[msg.sender].hasVoted != true, 'You have already voted');
-        require(_id < proposalsArray.length, 'Proposal not found'); // pas obligé, et pas besoin du >0 car uint
+        require(_id < proposalsArray.length, 'Proposal not found'); 
 
         voters[msg.sender].votedProposalId = _id;
         voters[msg.sender].hasVoted = true;
@@ -126,7 +125,7 @@ contract Voting is Ownable {
         emit Voted(msg.sender, _id);
     }
 
-    /// @notice Set ProposalsRegistrationStarted status. A default GENESIS proposal is automatically created
+    /// @notice Set ProposalsRegistrationStarted status. A default GENESIS proposal is automatically created. Only contract owner can do it.
     function startProposalsRegistering() external onlyOwner {
         require(workflowStatus == WorkflowStatus.RegisteringVoters, 'Registering proposals cant be started now');
         workflowStatus = WorkflowStatus.ProposalsRegistrationStarted;
@@ -138,28 +137,28 @@ contract Voting is Ownable {
         emit WorkflowStatusChange(WorkflowStatus.RegisteringVoters, WorkflowStatus.ProposalsRegistrationStarted);
     }
 
-    /// @notice Set ProposalsRegistrationEnded status.
+    /// @notice Set ProposalsRegistrationEnded status. Only contract owner can do it.
     function endProposalsRegistering() external onlyOwner {
         require(workflowStatus == WorkflowStatus.ProposalsRegistrationStarted, 'Registering proposals havent started yet');
         workflowStatus = WorkflowStatus.ProposalsRegistrationEnded;
         emit WorkflowStatusChange(WorkflowStatus.ProposalsRegistrationStarted, WorkflowStatus.ProposalsRegistrationEnded);
     }
 
-    /// @notice Set VotingSessionStarted status.
+    /// @notice Set VotingSessionStarted status. Only contract owner can do it.
     function startVotingSession() external onlyOwner {
         require(workflowStatus == WorkflowStatus.ProposalsRegistrationEnded, 'Registering proposals phase is not finished');
         workflowStatus = WorkflowStatus.VotingSessionStarted;
         emit WorkflowStatusChange(WorkflowStatus.ProposalsRegistrationEnded, WorkflowStatus.VotingSessionStarted);
     }
 
-    /// @notice Set VotingSessionEnded status.
+    /// @notice Set VotingSessionEnded status. Only contract owner can do it.
     function endVotingSession() external onlyOwner {
         require(workflowStatus == WorkflowStatus.VotingSessionStarted, 'Voting session havent started yet');
         workflowStatus = WorkflowStatus.VotingSessionEnded;
         emit WorkflowStatusChange(WorkflowStatus.VotingSessionStarted, WorkflowStatus.VotingSessionEnded);
     }
 
-    /// @notice Count votes and find the winning proposal id
+    /// @notice Count votes and find the winning proposal id. Only contract owner can do it.
     /// @dev Stored inside a contract variable to avoid to loop on the array many times during voters results consultation
    function tallyVotes() external onlyOwner {
        require(workflowStatus == WorkflowStatus.VotingSessionEnded, "Current status is not voting session ended");    
@@ -167,14 +166,14 @@ contract Voting is Ownable {
        emit WorkflowStatusChange(WorkflowStatus.VotingSessionEnded, WorkflowStatus.VotesTallied);
     }
 
-    /// @notice Get winning proposal id
-    /// @return proposal id
+    /// @notice Get winning proposal 
+    /// @return winning proposal details
     function getWinningProposal()
         external
         view
-        returns (uint256)
+        returns (Proposal memory)
     {
         require(workflowStatus == WorkflowStatus.VotesTallied, "Current status is not tallied vote");   
-        return winningProposalID;
+        return proposalsArray[winningProposalID];
     }
 }
